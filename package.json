@@ -11,7 +11,7 @@
     "docker:down": "docker compose down",
     "db:migrate": "prisma migrate deploy",
     "setup": "docker compose up -d && prisma migrate deploy",
-    "build": "nest build",
+    "build": "tsc -p tsconfig.build.json",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
