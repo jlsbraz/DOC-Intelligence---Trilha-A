@@ -30,6 +30,7 @@ export class BullMQWorkerAdapter implements OnModuleInit, OnModuleDestroy {
     const redisConnection = new Redis({
       host: config.redis.host,
       port: config.redis.port,
+      maxRetriesPerRequest: null,
       retryStrategy: (times) => Math.min(times * 50, 2000),
     });
 

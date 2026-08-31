@@ -25,7 +25,6 @@ const trustPolicy = new TrustPolicyService({ threshold: config.processing.confid
       provide: APP_GUARD,
       useClass: ApiKeyGuard,
     },
-    MockProvider,
     FileSystemStorage,
     PrismaPostgresRepository,
     RetryErrorClassifier,
@@ -37,7 +36,7 @@ const trustPolicy = new TrustPolicyService({ threshold: config.processing.confid
     },
     {
       provide: DocumentIntelligenceProvider,
-      useClass: MockProvider,
+      useFactory: () => new MockProvider({}),
     },
     {
       provide: StoragePort,

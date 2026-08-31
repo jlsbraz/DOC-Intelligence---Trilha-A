@@ -15,14 +15,19 @@ import { DocumentIngestionService } from './documents/document-ingestion.service
 import { DocumentRepository } from './documents/document-repository.port';
 import { DocumentStatus } from './documents/document-status.enum';
 
-@Controller('documents')
+@Controller()
 export class AppController {
   constructor(
     private readonly ingestionService: DocumentIngestionService,
     private readonly repository: DocumentRepository,
   ) {}
 
-  @Post()
+  @Get()
+  getHello() {
+    return 'Hello World!';
+  }
+
+  @Post('documents')
   @UseInterceptors(FileInterceptor('file'))
   async createDocument(@UploadedFile() file: any, @Res({ passthrough: true }) res: Response) {
     if (!file) {
@@ -57,7 +62,7 @@ export class AppController {
     };
   }
 
-  @Get(':id')
+  @Get('documents/:id')
   async getDocument(@Param('id') id: string) {
     const document = await this.repository.findById(id);
     if (!document) {
