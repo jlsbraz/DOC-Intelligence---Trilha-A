@@ -74,6 +74,7 @@ const trustPolicy = new TrustPolicyService({ threshold: config.processing.confid
           classifier,
           maxAttempts: config.processing.maxAttempts,
           backoffMs: config.processing.backoffMs,
+          providerTimeoutMs: config.processing.providerTimeoutMs,
         }),
       inject: [DocumentRepository, DocumentIntelligenceProvider, TrustPolicyService, RetryErrorClassifier, BullMQQueueAdapter],
     },

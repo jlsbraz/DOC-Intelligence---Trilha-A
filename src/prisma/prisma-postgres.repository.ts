@@ -1,26 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { DocumentRepository } from '../documents/document-repository.port';
 import { DocumentStatus } from '../documents/document-status.enum';
 import { StoredDocument } from '../documents/document.types';
-
-// Prisma Client type stub - tipos reais gerados por 'npx prisma generate'
-// Para testes, usamos repositório em memória; esta classe é para runtime
-declare const PrismaClient: any;
+import { config } from '../config';
 
 @Injectable()
 export class PrismaPostgresRepository extends DocumentRepository {
-  private readonly prisma: any;
+  private readonly prisma: PrismaClient;
 
   constructor() {
     super();
-    try {
-      // eslint-disable-next-line global-require
-      const { PrismaClient: PC } = require('@prisma/client');
-      this.prisma = new PC();
-    } catch (err) {
-      console.warn('Prisma not available (expected in test environment)');
-      this.prisma = null;
-    }
+    this.prisma = new PrismaClient({ adapter: new PrismaPg(config.database.url) });
   }
 
   async create(document: Omit<StoredDocument, 'createdAt' | 'updatedAt'> & { createdAt?: Date; updatedAt?: Date }): Promise<StoredDocument> {
@@ -34,8 +26,8 @@ export class PrismaPostgresRepository extends DocumentRepository {
         status: document.status,
         attempts: document.attempts,
         confidence: document.confidence ?? null,
-        result: document.result ?? null,
-        provenance: document.provenance ?? null,
+        result: (document.result ?? Prisma.JsonNull) as Prisma.InputJsonValue,
+        provenance: document.provenance ?? Prisma.JsonNull,
         errorType: document.errorType ?? null,
         lastError: document.lastError ?? null,
         createdAt: document.createdAt ?? new Date(),
@@ -63,8 +55,8 @@ export class PrismaPostgresRepository extends DocumentRepository {
         status: changes.status,
         attempts: changes.attempts,
         confidence: changes.confidence ?? null,
-        result: changes.result ?? null,
-        provenance: changes.provenance ?? null,
+        result: (changes.result ?? Prisma.JsonNull) as Prisma.InputJsonValue,
+        provenance: changes.provenance ?? Prisma.JsonNull,
         errorType: changes.errorType ?? null,
         lastError: changes.lastError ?? null,
         updatedAt: changes.updatedAt ?? new Date(),

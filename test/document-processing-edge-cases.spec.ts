@@ -201,4 +201,37 @@ describe('DocumentProcessingService edge cases', () => {
     await service.processDocument(document.id);
     expect(repository.documents.get(document.id).attempts).toBe(3);
   });
+
+  it('times out an unresponsive provider and schedules a retryable failure', async () => {
+    const repository = new InMemoryDocumentRepository();
+    const queue = new FakeQueue();
+    const provider = { analyze: jest.fn(() => new Promise<never>(() => undefined)) };
+    const service = new DocumentProcessingService({
+      repository: repository as any,
+      provider: provider as any,
+      trustPolicy: new TrustPolicyService({ threshold: 0.5 }),
+      queue: queue as any,
+      classifier: new RetryErrorClassifier(),
+      maxAttempts: 3,
+      backoffMs: 10,
+      providerTimeoutMs: 10,
+    });
+    const document = {
+      id: 'doc-timeout',
+      contentHash: 'hash-timeout',
+      status: DocumentStatus.PROCESSING,
+      attempts: 0,
+      metadata: { promptText: 'x', modelId: 'm', temperature: 0.1 },
+    };
+    repository.documents.set(document.id, document);
+
+    await service.processDocument(document.id);
+
+    const result = await repository.findById(document.id);
+    expect(result.status).toBe(DocumentStatus.PROCESSING);
+    expect(result.errorType).toBe('retryable');
+    expect(result.lastError).toContain('timed out');
+    expect(queue.enqueued).toHaveLength(1);
+    expect(queue.enqueued[0].options.delay).toBe(10);
+  });
 });

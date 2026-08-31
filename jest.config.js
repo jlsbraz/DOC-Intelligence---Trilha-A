@@ -10,4 +10,5 @@ module.exports = {
   transformIgnorePatterns: ['/node_modules/'],
   collectCoverageFrom: ['src/**/*.ts'],
   coverageDirectory: './coverage',
+  testPathIgnorePatterns: ['/node_modules/', '/test/integration/'],
 };

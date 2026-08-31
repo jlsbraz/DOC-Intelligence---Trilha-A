@@ -76,6 +76,7 @@ Crie `.env.local` (gitignored):
 REDIS_HOST=localhost
 REDIS_PORT=6379
 DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
+PROVIDER_TIMEOUT_MS=45000
 PROCESSING_MAX_ATTEMPTS=3
 PROCESSING_BACKOFF_MS=1000
 CONFIDENCE_THRESHOLD=0.8
@@ -135,14 +136,27 @@ POST /documents (novo)
 ## 🧪 Testes
 
 ```bash
-npm test                    # Todos (8 testes)
+npm test                    # Todos (9 testes)
 npm test -- --watch        # Watch mode
 npm run test:cov           # Cobertura
+npm run test:integration    # Teste real contra PostgreSQL (Docker deve estar ativo)
 ```
+
+O teste de integração usa o `PrismaPostgresRepository` real, executa duas ingestões concorrentes com o mesmo conteúdo e verifica no PostgreSQL a existência de uma única linha e uma única chamada ao provider. Ele fica separado da suíte unitária porque exige infraestrutura local.
+
+Para subir a infraestrutura local:
+
+```bash
+docker compose up -d postgres redis
+npx prisma migrate deploy
+npm run test:integration
+```
+
+O timeout do provider é configurável por `PROVIDER_TIMEOUT_MS` e tem default de 45 segundos, acima da latência máxima de 40 segundos descrita no ambiente.
 
 **Suites**: 
 - Workflow (dedup, retry, confiança) — 3 testes
-- Edge cases (exhaustão, terminal states) — 4 testes  
+- Edge cases (exhaustão, timeout, terminal states) — 5 testes  
 - Controller smoke test — 1 teste
 
 ---

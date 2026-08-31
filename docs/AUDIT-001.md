@@ -24,7 +24,7 @@ A avaliação abaixo é estritamente baseada em evidência verificada no reposit
 
 | Item | Classificação | Resultado verificado |
 |---|---|---|
-| 3.3 Timeout na chamada ao provider | NÃO CONFORME | Não existe timeout explícito em `provider.analyze()`. |
+| 3.3 Timeout na chamada ao provider | CONFORME | Timeout configurável de 45s implementado e coberto por teste; provider externo não foi executado. |
 | 3.4 Índice no campo `status` | CONFORME | Índice adicionado ao schema e migration gerada; aplicação no banco não foi executada nesta auditoria. |
 | 2.5 Middleware placeholder de API-key | NÃO CONFORME | Nenhum middleware global ou mecanismo placeholder foi encontrado em `src/`. |
 | 3.2 Estado em memória entre instâncias | CONFORME | Nenhuma variável de estado em escopo de módulo foi encontrada nos serviços/adapters analisados. |
@@ -40,7 +40,7 @@ A avaliação abaixo é estritamente baseada em evidência verificada no reposit
 
 ### 3.3 Timeout na chamada ao provider
 
-### Classificação: NÃO CONFORME
+### Classificação: CONFORME
 
 Busca realizada em `src/`:
 
@@ -50,19 +50,23 @@ src/documents/document-processing.service.ts:37:      const result = await this.
 src/documents/mock-provider.ts:23:  async analyze(payload: {
 ```
 
-Não foram encontrados `setTimeout`, `AbortController` ou `Promise.race` associados à chamada. O código aguarda diretamente:
+Foi implementado um timeout configurável de 45 segundos, acima da latência máxima de 40 segundos documentada em ENV-A, usando `Promise.race` e limpeza do timer:
 
 ```ts
-const result = await this.deps.provider.analyze({
+const analysis = this.deps.provider.analyze({
   documentId,
   storagePath: document.storagePath,
   contentHash: document.contentHash,
   mimeType: document.mimeType,
   filename: document.filename,
 });
+const timeout = new Promise<never>((_, reject) => {
+  timeoutHandle = setTimeout(() => reject(new ProviderTimeoutError(timeoutMs)), timeoutMs);
+});
+const result = await Promise.race([analysis, timeout]).finally(() => clearTimeout(timeoutHandle));
 ```
 
-Conclusão: se o provider não responder, o job pode manter o slot do worker ocupado indefinidamente. Este é um achado crítico pendente de implementação.
+`ProviderTimeoutError` usa `name = 'TimeoutError'`, portanto o `RetryErrorClassifier` o classifica como retentável. O teste focado passou com cinco testes, incluindo provider que nunca resolve, confirmando `PROCESSING`, `errorType = retryable`, backoff e re-enfileiramento.
 
 ### 3.4 Índice no campo `status`
 

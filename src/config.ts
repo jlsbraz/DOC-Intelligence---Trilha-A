@@ -21,6 +21,7 @@ export const config = {
   processing: {
     maxAttempts: Number(process.env.PROCESSING_MAX_ATTEMPTS ?? 3),
     backoffMs: Number(process.env.PROCESSING_BACKOFF_MS ?? 1000),
+    providerTimeoutMs: Number(process.env.PROVIDER_TIMEOUT_MS ?? 45000),
     confidenceThreshold: Number(process.env.CONFIDENCE_THRESHOLD ?? 0.8),
   },
 

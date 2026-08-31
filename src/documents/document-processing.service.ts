@@ -15,7 +15,15 @@ export type ProcessingDependencies = {
   classifier: RetryErrorClassifier;
   maxAttempts: number;
   backoffMs: number;
+  providerTimeoutMs?: number;
 };
+
+class ProviderTimeoutError extends Error {
+  constructor(timeoutMs: number) {
+    super(`Provider analysis timed out after ${timeoutMs}ms`);
+    this.name = 'TimeoutError';
+  }
+}
 
 @Injectable()
 export class DocumentProcessingService {
@@ -34,13 +42,19 @@ export class DocumentProcessingService {
     await this.deps.repository.update(documentId, { status: DocumentStatus.PROCESSING, updatedAt: new Date() });
 
     try {
-      const result = await this.deps.provider.analyze({
+      const analysis = this.deps.provider.analyze({
         documentId,
         storagePath: document.storagePath,
         contentHash: document.contentHash,
         mimeType: document.mimeType,
         filename: document.filename,
       });
+      const timeoutMs = this.deps.providerTimeoutMs ?? 45000;
+      let timeoutHandle: ReturnType<typeof setTimeout>;
+      const timeout = new Promise<never>((_, reject) => {
+        timeoutHandle = setTimeout(() => reject(new ProviderTimeoutError(timeoutMs)), timeoutMs);
+      });
+      const result = await Promise.race([analysis, timeout]).finally(() => clearTimeout(timeoutHandle));
 
       const shouldApprove = this.deps.trustPolicy.shouldApprove(result.confidence);
       const updated: Partial<typeof document> = {
