@@ -36,10 +36,14 @@ export class MockPrismaRepository {
     filename: string;
     contentHash: string;
     mimeType: string;
+    storagePath?: string;
     status: DocumentStatus;
+    attempts?: number;
     result?: string | null;
     confidence?: number | null;
     provenance?: string | null;
+    errorType?: string | null;
+    lastError?: string | null;
   }): Promise<DocumentRecord> {
     const now = new Date();
     const document: DocumentRecord = {
@@ -47,10 +51,14 @@ export class MockPrismaRepository {
       filename: data.filename,
       contentHash: data.contentHash,
       mimeType: data.mimeType,
+      storagePath: data.storagePath ?? `storage/${data.id}`,
       status: data.status,
+      attempts: data.attempts ?? 0,
       result: data.result ?? null,
       confidence: data.confidence ?? null,
       provenance: data.provenance ?? null,
+      errorType: data.errorType ?? null,
+      lastError: data.lastError ?? null,
       createdAt: now,
       updatedAt: now,
     };

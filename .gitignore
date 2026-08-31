@@ -1,0 +1,194 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jest coverage
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+prisma/dev.db
+
+# Storage
+storage/
+uploads/
+documents/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Cache
+.cache/
+.eslintcache
+
+# NestJS specific
+dist/
+node_modules/
+.env
+*.js.map
+
+# Test files
+test-results/
+test-reports/
+*.xml
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# yarn
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# IDEs and Editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Mac
+.DS_Store
+
+# Misc
+.env.*.local
+dist
+.cache/
+.next
+out
+.nuxt
+.cache
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+
+# Local development
+.local/
+
+# Redis (if running locally)
+dump.rdb
+
+# Session files
+sessions/
+
+# Backup files
+*.backup
+*.bak
+
+# Process manager files
+ecosystem.config.js
+.pm2/
+
+# Sentry
+sentry.properties
+
+# Config overrides
+tsconfig.json.bak
+
+# Generated files
+generated/
+
+# Temporary build files
+temp-build/
+
+# Module cache
+.module-cache
+
+# Compiled TypeScript files
+*.js
+!jest.config.js
+!jest.integration.config.js
+!nest-cli.json
+!tsconfig.json
+!tsconfig.build.json
+*.js.map
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# AI/LLM generated files (if any)
+.gpt-cache/
+
+# Actual database files
+*.db-*
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Temp API responses
+api-responses/

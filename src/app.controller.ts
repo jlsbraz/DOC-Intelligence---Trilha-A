@@ -22,9 +22,12 @@ export class AppController {
     private readonly repository: DocumentRepository,
   ) {}
 
-  @Get()
-  getHello() {
-    return 'Hello World!';
+  @Get('health')
+  health() {
+    return {
+      status: 'ok',
+      service: 'DOC Intelligence - Trilha A',
+    };
   }
 
   @Post('documents')
@@ -40,7 +43,7 @@ export class AppController {
     }
 
     const header = buffer.subarray(0, 8).toString('hex');
-    const isPdf = header.startsWith('255044462d46');
+    const isPdf = header.startsWith('255044462d'); // %PDF-
     const isPng = header.startsWith('89504e470d0a1a0a');
     const isJpeg = buffer.subarray(0, 2).toString('hex') === 'ffd8';
 
@@ -62,6 +65,11 @@ export class AppController {
     };
   }
 
+  @Get('documents')
+  async listDocuments(@Query('status') status?: DocumentStatus) {
+    return this.repository.listByStatus(status);
+  }
+
   @Get('documents/:id')
   async getDocument(@Param('id') id: string) {
     const document = await this.repository.findById(id);
@@ -78,8 +86,4 @@ export class AppController {
     };
   }
 
-  @Get()
-  async listDocuments(@Query('status') status?: DocumentStatus) {
-    return this.repository.listByStatus(status);
-  }
 }
