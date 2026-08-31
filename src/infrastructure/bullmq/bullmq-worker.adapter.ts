@@ -15,6 +15,9 @@ import { config } from '../../config';
  * - Conectar ao Redis
  * - Criar e gerenciar a instância do Worker
  * - Delegar jobs ao serviço de domínio sem lógica de negócio aqui
+ *
+ * Modo Mock: Worker não inicia (processamento é síncrono em testes)
+ * Modo Real: Worker inicia normalmente
  */
 @Injectable()
 export class BullMQWorkerAdapter implements OnModuleInit, OnModuleDestroy {
@@ -25,8 +28,14 @@ export class BullMQWorkerAdapter implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Inicializa o worker e começa a consumir jobs.
+   * Em modo mock, pula esta inicialização para evitar dependências de infraestrutura.
    */
   async onModuleInit(): Promise<void> {
+    if (config.mock.enabled) {
+      this.logger.log('BullMQ worker initialization skipped (mock mode enabled)');
+      return;
+    }
+
     const redisConnection = new Redis({
       host: config.redis.host,
       port: config.redis.port,
@@ -79,3 +88,4 @@ export class BullMQWorkerAdapter implements OnModuleInit, OnModuleDestroy {
     }
   }
 }
+

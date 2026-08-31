@@ -12,6 +12,11 @@ export class PrismaPostgresRepository extends DocumentRepository {
 
   constructor() {
     super();
+    // Apenas tenta conectar em modo real
+    if (config.mock.enabled) {
+      this.prisma = null as any;
+      return;
+    }
     this.prisma = new PrismaClient({ adapter: new PrismaPg(config.database.url) });
   }
 

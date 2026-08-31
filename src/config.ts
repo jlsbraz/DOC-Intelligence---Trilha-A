@@ -1,9 +1,21 @@
 /**
  * Application Configuration
  *
- * Centralizes environment-based configuration for the document processing pipeline.
- * Override via .env or environment variables.
+ * Centraliza configuração baseada em ambiente para o pipeline de processamento de documentos.
+ * Sobrescreva via .env ou variáveis de ambiente.
+ *
+ * Modo Mock (ENABLE_MOCKS=true):
+ * - DATABASE_URL é opcional
+ * - Usa repositório em memória
+ * - Usa Redis mock em memória
+ *
+ * Modo Real (ENABLE_MOCKS=false):
+ * - DATABASE_URL é obrigatório
+ * - Usa PostgreSQL real
+ * - Usa Redis real
  */
+
+const isMockEnabled = process.env.ENABLE_MOCKS !== 'false';
 
 export const config = {
   // Redis
@@ -14,7 +26,7 @@ export const config = {
 
   // Database
   database: {
-    url: requiredEnvironmentVariable('DATABASE_URL'),
+    url: isMockEnabled ? (process.env.DATABASE_URL ?? 'mock://in-memory') : requiredEnvironmentVariable('DATABASE_URL'),
   },
 
   // Processing
@@ -39,6 +51,11 @@ export const config = {
   server: {
     port: Number(process.env.PORT ?? 3000),
     nodeEnv: process.env.NODE_ENV ?? 'development',
+  },
+
+  // Mock
+  mock: {
+    enabled: isMockEnabled,
   },
 };
 

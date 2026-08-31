@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { config } from '../../config';
+import { MockRedisClient } from '../mocks/mock-redis-client';
 
 /**
  * BullMQ Queue Adapter
@@ -12,18 +13,23 @@ import { config } from '../../config';
  *
  * Responsabilidade: enfileirar jobs de processamento de documentos.
  * Não contém lógica de negócio.
+ *
+ * Modo Mock: Usa Redis em memória para testes
+ * Modo Real: Usa Redis real via Docker/infraestrutura
  */
 @Injectable()
 export class BullMQQueueAdapter {
   private readonly queue: Queue;
 
   constructor() {
-    const redisConnection = new Redis({
-      host: config.redis.host,
-      port: config.redis.port,
-      maxRetriesPerRequest: null,
-      retryStrategy: (times) => Math.min(times * 50, 2000),
-    });
+    const redisConnection = config.mock.enabled
+      ? (new MockRedisClient() as any)
+      : new Redis({
+          host: config.redis.host,
+          port: config.redis.port,
+          maxRetriesPerRequest: null,
+          retryStrategy: (times) => Math.min(times * 50, 2000),
+        });
 
     this.queue = new Queue('document-processing', {
       connection: redisConnection,
