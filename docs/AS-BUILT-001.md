@@ -1,5 +1,17 @@
 # AS-BUILT-001
 
+## Adendo de verificação posterior - 31/08/2026
+
+Após a incorporação formal do SPEC-001 e dos ADRs em commits separados, foram corrigidos e verificados os seguintes pontos:
+
+- `ApiKeyGuard` registrado como `APP_GUARD`, com testes de rejeição sem `x-api-key` e aceitação com a chave configurada.
+- `DATABASE_URL` passou a ser obrigatória em `src/config.ts`; o fallback com `user:password` foi removido e `.env.example` foi criado.
+- Prisma 7 passou em `npx prisma validate` e `npx prisma generate`; a aplicação das migrations continua pendente porque `localhost:5432` não estava acessível (`P1001`).
+- `PROVIDER_TIMEOUT_MS` passou a controlar timeout de 45 segundos no provider, com teste de provider que nunca resolve.
+- Logs do worker passaram de `console.*` para `Logger` nativo do NestJS; ausência de DLQ/rate limiting foi registrada como decisão no ADR-001.
+
+Validação final desta sessão: 4 suítes e 11 testes passaram; o build NestJS passou. O teste de integração PostgreSQL foi preparado, mas não pôde concluir sem servidor PostgreSQL disponível.
+
 ## Observação de conformidade
 
 Não localizei os arquivos `docs/SPEC-001.md` nem `docs/adr/ADR-001` a `ADR-003` no workspace atual. O relatório abaixo usa como evidência verificável:

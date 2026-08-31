@@ -14,7 +14,7 @@ export const config = {
 
   // Database
   database: {
-    url: process.env.DATABASE_URL ?? 'postgresql://user:password@localhost:5432/doc-intelligence',
+    url: requiredEnvironmentVariable('DATABASE_URL'),
   },
 
   // Processing
@@ -41,3 +41,11 @@ export const config = {
     nodeEnv: process.env.NODE_ENV ?? 'development',
   },
 };
+
+function requiredEnvironmentVariable(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} is required`);
+  }
+  return value;
+}

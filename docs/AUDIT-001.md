@@ -1,5 +1,17 @@
 # AUDIT-001
 
+## Adendo de correções verificadas - 31/08/2026
+
+As classificações abaixo foram atualizadas após correções pontuais e nova execução de testes:
+
+- Item 2.5 (API-key placeholder): `CONFORME` no código e nos testes focados.
+- Item 2.3 (credencial hardcoded): `CONFORME`; `DATABASE_URL` agora é obrigatória e há `.env.example` sem credencial operacional.
+- Item 3.3 (timeout): `CONFORME`; timeout configurável de 45 segundos implementado e testado.
+- Item 3.4 (índice): schema e migration presentes; aplicação em banco real permanece não verificada por `P1001`.
+- Item de logging: eventos preservados com `Logger` nativo do NestJS, sem `console.*` no worker.
+
+Saída final verificada: 4 suítes, 11 testes e build NestJS passaram. O teste de integração com PostgreSQL não concluiu porque não havia servidor acessível em `localhost:5432`.
+
 ## Escopo
 
 Este documento avalia o estado atual do software em quatro dimensões: coesão, segurança, escalabilidade e coerência.

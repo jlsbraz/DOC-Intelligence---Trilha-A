@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
+import { ApiKeyGuard } from './api-key.guard';
 import { DocumentIngestionService } from './documents/document-ingestion.service';
 import { DocumentProcessingService } from './documents/document-processing.service';
 import { DocumentRepository } from './documents/document-repository.port';
@@ -19,6 +21,10 @@ const trustPolicy = new TrustPolicyService({ threshold: config.processing.confid
 @Module({
   controllers: [AppController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
     MockProvider,
     FileSystemStorage,
     PrismaPostgresRepository,

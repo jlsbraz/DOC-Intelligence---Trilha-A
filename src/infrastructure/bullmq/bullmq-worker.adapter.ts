@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { DocumentProcessingService } from '../../documents/document-processing.service';
@@ -19,6 +19,7 @@ import { config } from '../../config';
 @Injectable()
 export class BullMQWorkerAdapter implements OnModuleInit, OnModuleDestroy {
   private worker: Worker | null = null;
+  private readonly logger = new Logger(BullMQWorkerAdapter.name);
 
   constructor(private readonly processingService: DocumentProcessingService) {}
 
@@ -39,17 +40,17 @@ export class BullMQWorkerAdapter implements OnModuleInit, OnModuleDestroy {
 
     this.worker.on('failed', (job, err) => {
       if (job) {
-        console.error(`Job ${job.id} failed: ${err.message}`);
+        this.logger.error(`Job ${job.id} failed: ${err.message}`);
       } else {
-        console.error(`Job failed: ${err.message}`);
+        this.logger.error(`Job failed: ${err.message}`);
       }
     });
 
     this.worker.on('completed', (job) => {
-      console.log(`Job ${job.id} completed`);
+      this.logger.log(`Job ${job.id} completed`);
     });
 
-    console.log('BullMQ worker started');
+    this.logger.log('BullMQ worker started');
   }
 
   /**
@@ -73,7 +74,7 @@ export class BullMQWorkerAdapter implements OnModuleInit, OnModuleDestroy {
   async onModuleDestroy(): Promise<void> {
     if (this.worker) {
       await this.worker.close();
-      console.log('BullMQ worker closed');
+      this.logger.log('BullMQ worker closed');
     }
   }
 }

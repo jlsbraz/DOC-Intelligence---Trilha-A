@@ -152,6 +152,8 @@ npx prisma migrate deploy
 npm run test:integration
 ```
 
+O projeto usa a configuração do Prisma 7 em `prisma.config.ts`: a URL de conexão para migrations fica em `datasource.url` desse arquivo, enquanto `prisma/schema.prisma` declara apenas o provider PostgreSQL. `DATABASE_URL` é obrigatória; o arquivo `.env.example` contém somente placeholders.
+
 O timeout do provider é configurável por `PROVIDER_TIMEOUT_MS` e tem default de 45 segundos, acima da latência máxima de 40 segundos descrita no ambiente.
 
 **Suites**: 
