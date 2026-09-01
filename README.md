@@ -11,7 +11,7 @@
 **Este projeto DEPENDE de Docker para funcionar!**
 
 ```
-SEM DOCKER = CÓDIGO NÃO RODA (ou roda em modo mock sem persistência)
+SEM DOCKER = CÓDIGO NÃO RODA
 ```
 
 **Antes de fazer qualquer coisa, certifique-se que:**
@@ -59,8 +59,9 @@ Certifique-se que você tem instalado:
 | **Node.js** | >= v22.17.0 | `node --version` |
 | **npm** | >= 10.9.2 | `npm --version` |
 | **Git** | Qualquer versão | `git --version` |
+| **Docker Desktop** | Última versão | `docker --version` |
 
-> ℹ️ **PostgreSQL e Redis?** O projeto está configurado para rodar em **modo mock** por padrão (tudo em memória). Se quiser usar infraestrutura real, execute `npm run docker:up` para iniciar os containers.
+> ⚠️ **Docker é obrigatório!** PostgreSQL e Redis rodam em containers Docker.
 
 ---
 
@@ -586,9 +587,6 @@ npm run docker:up
 # 4. Se falhar, limpe e recrie
 npm run docker:down
 npm run docker:up
-
-# 5. Se ainda não funcionar, use modo mock (sem banco real):
-npm start  # Sem executar docker:up
 ```
 
 ### Parar o Docker
@@ -601,14 +599,10 @@ npm run docker:down
 
 ---
 
-## 🐳 Modos de Execução
-
-### Modo 1: Real (Recomendado) - Com Docker
-
-**Este é o modo que deve usar para desenvolvimento real!**
+## 🐳 Fluxo de Execução (Obrigatório)
 
 ```bash
-# 1. Inicie os containers (OBRIGATÓRIO)
+# 1. Inicie os containers (OBRIGATÓRIO - sem isso nada funciona)
 npm run docker:up
 
 # 2. Aplique migrations
@@ -618,42 +612,18 @@ npm run db:migrate
 npm start
 ```
 
-**Características:**
+**Padrão de Execução:**
+- ✅ Docker SEMPRE ligado
 - ✅ Dados persistidos no PostgreSQL
 - ✅ Fila real com Redis
-- ✅ Mais próximo de produção
+- ✅ Próximo a produção
 - ✅ Tudo sincroniza entre reinicios
-- ⚠️ Precisa de Docker Desktop instalado e rodando
 
-**Quando usar:** 
-- Testes reais
-- Desenvolvimento com dados
-- Simular produção
-- Trabalho em equipe
-
----
-
-### Modo 2: Mock (Emergência) - SEM Docker
-
-**Use APENAS se o Docker não estiver funcionando!**
-
+**Parar o servidor:**
 ```bash
-npm start
+# Em outro terminal, deixe o servidor rodando e:
+npm run docker:down  # Isso para PostgreSQL + Redis
 ```
-
-**Características:**
-- ✅ Não precisa de Docker
-- ✅ Tudo em memória
-- ✅ Rápido para testes rápidos
-- ❌ Dados perdidos ao reiniciar
-- ❌ Sem persistência real
-
-**Quando usar:**
-- Docker não está funcionando
-- Testes rápidos de funcionalidade
-- Prototipação rápida
-
-**Como ativar:** Deixe `.env.local` vazio para `DATABASE_URL` e `REDIS_HOST`
 
 ---
 
@@ -827,11 +797,9 @@ DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
 DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
 ```
 
-**⚠️ Se deixar vazio ou comentado:**
+**Valor obrigatório:**
 ```bash
-# DATABASE_URL=  
-# → Sistema entra em MODO MOCK (sem persistência)
-# → Dados são perdidos ao reiniciar
+DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
 ```
 
 ---
@@ -845,21 +813,13 @@ REDIS_PORT=6379
 
 | Variável | Padrão | O que faz |
 |----------|--------|----------|
-| **REDIS_HOST** | `localhost` | Endereço do servidor Redis |
+| **REDIS_HOST** | `localhost` | Endereço do servidor Redis (Docker) |
 | **REDIS_PORT** | `6379` | Porta padrão Redis |
 
-**Para Docker (padrão):**
+**Valor obrigatório (Docker):**
 ```bash
 REDIS_HOST=localhost
 REDIS_PORT=6379
-```
-
-**⚠️ Se deixar em branco:**
-```bash
-REDIS_HOST=
-REDIS_PORT=
-# → MODO MOCK (filas em memória)
-# → Sem persistência de jobs
 ```
 
 ---
@@ -1013,7 +973,7 @@ STORAGE_UPLOAD_DIR=./storage/uploads
 
 ### 🎯 Variáveis por Cenário
 
-#### Desenvolvimento Local (Com Docker)
+#### Desenvolvimento Local (Padrão)
 ```bash
 PORT=3000
 NODE_ENV=development
@@ -1021,22 +981,6 @@ API_KEY_PLACEHOLDER=dev-key
 DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
 REDIS_HOST=localhost
 REDIS_PORT=6379
-PROVIDER_TIMEOUT_MS=45000
-PROCESSING_MAX_ATTEMPTS=3
-PROCESSING_BACKOFF_MS=1000
-CONFIDENCE_THRESHOLD=0.8
-WORKER_CONCURRENCY=1
-STORAGE_UPLOAD_DIR=./storage/uploads
-```
-
-#### Desenvolvimento Rápido (Modo Mock - SEM Docker)
-```bash
-PORT=3000
-NODE_ENV=development
-API_KEY_PLACEHOLDER=dev-key
-DATABASE_URL=                  # Vazio = modo mock
-REDIS_HOST=                    # Vazio = modo mock
-REDIS_PORT=
 PROVIDER_TIMEOUT_MS=45000
 PROCESSING_MAX_ATTEMPTS=3
 PROCESSING_BACKOFF_MS=1000
@@ -1065,16 +1009,16 @@ STORAGE_UPLOAD_DIR=/var/data/documents
 
 ### ✅ Checklist de Configuração
 
-- [ ] Docker Desktop instalado e rodando
-- [ ] `npm run docker:up` executado com sucesso
-- [ ] `.env.local` criado com variáveis
-- [ ] `DATABASE_URL` preenchido corretamente
-- [ ] `REDIS_HOST` preenchido corretamente
-- [ ] `PORT` não está sendo usado por outro app
-- [ ] `API_KEY_PLACEHOLDER` definida
+- [ ] Docker Desktop instalado e rodando (`docker --version`)
 - [ ] `npm install` completado
+- [ ] `.env.local` criado com todas as 12 variáveis
+- [ ] `npm run docker:up` executado com sucesso
+- [ ] PostgreSQL e Redis containers rodando (`docker ps`)
 - [ ] `npm run db:migrate` executado
 - [ ] `npm start` iniciando corretamente
+- [ ] Server respondendo em `http://localhost:3000/health`
+- [ ] API Key `dev-key` funcionando (header `x-api-key`)
+- [ ] REST Client tests executando com sucesso
 
 
 
@@ -1157,12 +1101,12 @@ kill -9 <PID>
 
 Se vir erro como `Error: connect ECONNREFUSED 127.0.0.1:6379`:
 
-**Opção 1:** Deixe em mock mode (delete `REDIS_HOST` do `.env`)
-
-**Opção 2:** Inicie Redis:
+**Solução:** Inicie Docker
 ```bash
 npm run docker:up
 ```
+
+Se Docker Desktop não está rodando, abra-o antes.
 
 ### Problema: Testes falhando
 
@@ -1407,7 +1351,7 @@ x-api-key: dev-key
 
 **Adapters (Implementações):**
 - `prisma-postgres.repository.ts` - Implementação com Prisma
-- `mock-provider.ts` - Mock para testes
+- `mock-provider.ts` - Implementação mock para testes
 - `file-system-storage.ts` - Sistema de arquivos
 
 ---
@@ -1462,8 +1406,7 @@ Ao receber upload, o documento entra em fila (BullMQ). Worker processa em backgr
 - **FAILED** - Erro (com retry)
 - **PENDING_REVIEW** - Confiança baixa
 
-### Mock vs Real Mode
-- **Mock:** Dados em memória, nenhuma dependência externa
+### Modo de Execução
 - **Real:** PostgreSQL + Redis, persistência, escalabilidade
 
 ---
@@ -1554,26 +1497,6 @@ taskkill /PID <PID> /F
 # Linux/Mac
 lsof -i :3000
 kill -9 <PID>
-```
-
-### Problema: "Cannot connect to Redis"
-
-Se vir erro como `Error: connect ECONNREFUSED 127.0.0.1:6379`:
-
-**Opção 1:** Deixe em mock mode (delete `REDIS_HOST` do `.env`)
-
-**Opção 2:** Inicie Redis:
-```bash
-npm run docker:up
-```
-
-### Problema: Testes falhando
-
-```bash
-# Limpe cache e reinstale
-rm -rf node_modules package-lock.json dist
-npm install
-npm test
 ```
 
 ---
