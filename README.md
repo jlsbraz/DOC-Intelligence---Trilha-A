@@ -567,6 +567,85 @@ Este projeto depende de:
    docker run hello-world
    ```
 
+### 🖼️ Imagens Docker Necessárias
+
+Este projeto utiliza **duas imagens Docker** essenciais:
+
+#### 1️⃣ PostgreSQL 16 Alpine (`postgres:16-alpine`)
+
+**O que é:**
+- Banco de dados relacional para persistir documentos
+- Versão Alpine (leve, otimizada para containers)
+- Porta padrão: `5432`
+
+**Como adicionar:**
+Docker baixa automaticamente quando você roda:
+```bash
+npm run docker:up
+```
+
+**Se quiser pré-baixar manualmente:**
+```bash
+docker pull postgres:16-alpine
+```
+
+**Verificar se está disponível:**
+```bash
+docker images | grep postgres
+# Deve listar: postgres    16-alpine    <image-id>
+```
+
+---
+
+#### 2️⃣ Redis 7 Alpine (`redis:7-alpine`)
+
+**O que é:**
+- Fila de processamento em memória para BullMQ
+- Armazena jobs aguardando processamento
+- Versão Alpine (mínima, rápida)
+- Porta padrão: `6379`
+
+**Como adicionar:**
+Docker baixa automaticamente quando você roda:
+```bash
+npm run docker:up
+```
+
+**Se quiser pré-baixar manualmente:**
+```bash
+docker pull redis:7-alpine
+```
+
+**Verificar se está disponível:**
+```bash
+docker images | grep redis
+# Deve listar: redis    7-alpine    <image-id>
+```
+
+---
+
+#### 📥 Pré-carregando as Imagens (Opcional)
+
+Se você quer garantir que as imagens estão disponíveis ANTES de rodar o projeto:
+
+```bash
+# Baixar ambas as imagens
+docker pull postgres:16-alpine
+docker pull redis:7-alpine
+
+# Verificar
+docker images
+```
+
+**Saída esperada:**
+```
+REPOSITORY    TAG         IMAGE ID      SIZE
+postgres      16-alpine   abc123...     123MB
+redis         7-alpine    def456...     45MB
+```
+
+---
+
 ### Subir o Docker (Passo Crítico!)
 
 ```bash
