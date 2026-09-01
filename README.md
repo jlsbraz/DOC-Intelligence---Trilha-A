@@ -6,7 +6,24 @@
 
 ---
 
-## ⚡ Quick Start (5 minutos)
+## ⚠️ AVISO IMPORTANTE - Docker é Essencial
+
+**Este projeto DEPENDE de Docker para funcionar!**
+
+```
+SEM DOCKER = CÓDIGO NÃO RODA (ou roda em modo mock sem persistência)
+```
+
+**Antes de fazer qualquer coisa, certifique-se que:**
+1. ✅ Docker Desktop está instalado
+2. ✅ Docker Desktop está rodando (ícone da baleia visível)
+3. ✅ `npm run docker:up` executa sem erros
+
+Se o Docker não estiver funcionando, vire os instruções na seção "🐳 Docker - Configuração Essencial" abaixo.
+
+---
+
+## ⚡ Quick Start (10-15 minutos)
 
 Se você quer rodar rápido, siga este fluxo:
 
@@ -14,14 +31,22 @@ Se você quer rodar rápido, siga este fluxo:
 # 1️⃣ Instale as dependências
 npm install
 
-# 2️⃣ Inicie o servidor
+# 2️⃣ IMPORTANTE: Inicie o Docker (PostgreSQL + Redis)
+npm run docker:up
+
+# 3️⃣ Aplique migrations do banco
+npm run db:migrate
+
+# 4️⃣ Inicie o servidor
 npm start
 
-# 3️⃣ Abra VS Code e vá para rest-client/02-documents-upload.rest
+# 5️⃣ Abra VS Code e vá para rest-client/02-documents-upload.rest
 # Clique em "Upload PNG" para testar
 ```
 
 **Pronto!** O servidor está rodando em `http://localhost:3000` com API key `dev-key`.
+
+> ⚠️ **ATENÇÃO:** Se o Docker não estiver instalado ou não subir corretamente, o código **NÃO funcionará**. Veja a seção "🐳 Docker - Configuração Essencial" abaixo.
 
 ---
 
@@ -485,24 +510,105 @@ x-api-key: {{apiKey}}
 
 ---
 
-## 🐳 Modos de Execução
+## 🐳 Docker - Configuração Essencial
 
-### Modo 1: Mock (Padrão - Recomendado para Começar)
+### ⚠️ Por que Docker é Necessário?
+
+Este projeto depende de:
+- **PostgreSQL 16** - Banco de dados para persistir documentos
+- **Redis 7** - Fila de processamento assíncrono
+
+**Sem Docker, o código NÃO funcionará!**
+
+### Pré-requisitos do Docker
+
+1. **Docker Desktop** instalado
+   - Windows: https://www.docker.com/products/docker-desktop
+   - Mac: https://www.docker.com/products/docker-desktop
+   - Linux: `apt install docker.io`
+
+2. **Docker Daemon rodando**
+   - Abra Docker Desktop
+   - Verifique o status (ícone da baleia na bandeja)
+   - Aguarde até aparecer "Docker Desktop is running"
+
+3. **Verificar instalação:**
+   ```bash
+   docker --version
+   docker run hello-world
+   ```
+
+### Subir o Docker (Passo Crítico!)
 
 ```bash
-npm start
+# Inicia PostgreSQL e Redis em containers
+npm run docker:up
 ```
 
-- ✅ Tudo em memória (sem dependências externas)
-- ✅ Rápido e leve
-- ⚠️ Dados perdidos ao reiniciar
+**Você verá algo assim:**
+```
+✓ Creating network "doc-intelligence-network"
+✓ Creating postgres_1 (postgres:16-alpine)
+✓ Creating redis_1 (redis:7-alpine)
 
-**Bom para:** Testes rápidos, desenvolvimento
+Services running:
+  • PostgreSQL: localhost:5432
+  • Redis: localhost:6379
+```
 
-### Modo 2: Real (Com PostgreSQL + Redis)
+**Aguarde 10-15 segundos** para os containers ficarem prontos.
+
+### Verificar se Docker Subiu Corretamente
 
 ```bash
-# 1. Inicie os containers
+# Listar containers
+docker ps
+
+# Esperado:
+# postgres:16-alpine (STATUS: Up)
+# redis:7-alpine (STATUS: Up)
+```
+
+### Se o Docker NÃO Subir
+
+**Erro típico:** `Error: connect ECONNREFUSED 127.0.0.1:5432`
+
+**Soluções:**
+```bash
+# 1. Verifique se Docker Desktop está rodando
+docker ps
+
+# 2. Se mostrar erro, reinicie Docker Desktop
+
+# 3. Tente novamente
+npm run docker:up
+
+# 4. Se falhar, limpe e recrie
+npm run docker:down
+npm run docker:up
+
+# 5. Se ainda não funcionar, use modo mock (sem banco real):
+npm start  # Sem executar docker:up
+```
+
+### Parar o Docker
+
+```bash
+npm run docker:down
+```
+
+**Isso NOT apaga seus dados!** (PostgreSQL persiste em volume)
+
+---
+
+## 🐳 Modos de Execução
+
+### Modo 1: Real (Recomendado) - Com Docker
+
+**Este é o modo que deve usar para desenvolvimento real!**
+
+```bash
+# 1. Inicie os containers (OBRIGATÓRIO)
 npm run docker:up
 
 # 2. Aplique migrations
@@ -512,11 +618,42 @@ npm run db:migrate
 npm start
 ```
 
-- ✅ Dados persistidos
+**Características:**
+- ✅ Dados persistidos no PostgreSQL
 - ✅ Fila real com Redis
-- ⚠️ Precisa de Docker instalado
+- ✅ Mais próximo de produção
+- ✅ Tudo sincroniza entre reinicios
+- ⚠️ Precisa de Docker Desktop instalado e rodando
 
-**Bom para:** Testes de produção, dados reais
+**Quando usar:** 
+- Testes reais
+- Desenvolvimento com dados
+- Simular produção
+- Trabalho em equipe
+
+---
+
+### Modo 2: Mock (Emergência) - SEM Docker
+
+**Use APENAS se o Docker não estiver funcionando!**
+
+```bash
+npm start
+```
+
+**Características:**
+- ✅ Não precisa de Docker
+- ✅ Tudo em memória
+- ✅ Rápido para testes rápidos
+- ❌ Dados perdidos ao reiniciar
+- ❌ Sem persistência real
+
+**Quando usar:**
+- Docker não está funcionando
+- Testes rápidos de funcionalidade
+- Prototipação rápida
+
+**Como ativar:** Deixe `.env.local` vazio para `DATABASE_URL` e `REDIS_HOST`
 
 ---
 
@@ -666,24 +803,200 @@ npm run test:e2e
 
 ---
 
-## ⚙️ Variáveis de Ambiente
+## ⚙️ Variáveis de Ambiente (Documentação Completa)
 
-Crie um arquivo `.env.local` na raiz com:
+Crie um arquivo `.env.local` na raiz com as variáveis abaixo. **Este arquivo é ignorado pelo Git** (não compartilhe suas credenciais!)
+
+### 🔑 Variáveis de Banco de Dados
+
+```bash
+DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
+```
+
+| Componente | Valor Padrão | Descrição |
+|-----------|--------------|-----------|
+| **Protocolo** | `postgresql://` | Tipo de banco (PostgreSQL) |
+| **Usuário** | `user` | Usuário do PostgreSQL (padrão Docker) |
+| **Senha** | `password` | Senha do PostgreSQL (padrão Docker) |
+| **Host** | `localhost` | Máquina rodando PostgreSQL |
+| **Porta** | `5432` | Porta padrão PostgreSQL |
+| **Database** | `doc-intelligence` | Nome do banco de dados |
+
+**Exemplo completo:**
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
+```
+
+**⚠️ Se deixar vazio ou comentado:**
+```bash
+# DATABASE_URL=  
+# → Sistema entra em MODO MOCK (sem persistência)
+# → Dados são perdidos ao reiniciar
+```
+
+---
+
+### 🔴 Variáveis de Redis (Fila)
+
+```bash
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
+
+| Variável | Padrão | O que faz |
+|----------|--------|----------|
+| **REDIS_HOST** | `localhost` | Endereço do servidor Redis |
+| **REDIS_PORT** | `6379` | Porta padrão Redis |
+
+**Para Docker (padrão):**
+```bash
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
+
+**⚠️ Se deixar em branco:**
+```bash
+REDIS_HOST=
+REDIS_PORT=
+# → MODO MOCK (filas em memória)
+# → Sem persistência de jobs
+```
+
+---
+
+### ⏱️ Variáveis de Processamento
+
+```bash
+PROVIDER_TIMEOUT_MS=45000
+```
+- **Timeout** para chamadas ao provider de IA
+- **45000 ms = 45 segundos**
+- Se exceder, document vai para status FAILED
+- Aumentar em conexões lentas: `PROVIDER_TIMEOUT_MS=60000`
+
+```bash
+PROCESSING_MAX_ATTEMPTS=3
+```
+- **Quantas vezes tentar** processar um documento que falha
+- Padrão: 3 tentativas
+- Cada tentativa é separada por `PROCESSING_BACKOFF_MS`
+
+```bash
+PROCESSING_BACKOFF_MS=1000
+```
+- **Tempo de espera entre tentativas** (em milissegundos)
+- 1000 ms = 1 segundo
+- Entre falha e retry: 1s → 2s → 3s
+
+**Exemplo:** Documento falha
+```
+Tentativa 1: FALHA
+    ↓ aguarda 1s
+Tentativa 2: FALHA
+    ↓ aguarda 1s
+Tentativa 3: FALHA
+    ↓ vai para status FAILED
+```
+
+```bash
+CONFIDENCE_THRESHOLD=0.8
+```
+- **Limiar de confiança** na resposta do modelo
+- 0.8 = 80% de confiança mínima
+- Abaixo disso: status `PENDING_REVIEW`
+- Valores: 0.0 a 1.0
+
+```bash
+WORKER_CONCURRENCY=1
+```
+- **Quantos documentos processar simultaneamente**
+- 1 = um de cada vez (mais lento, mais estável)
+- 5 = 5 em paralelo (mais rápido, usa mais CPU/RAM)
+- Recomendado para começar: 1
+
+---
+
+### 📁 Variáveis de Armazenamento
+
+```bash
+STORAGE_UPLOAD_DIR=./storage/uploads
+```
+- **Pasta onde documentos são salvos**
+- Caminho relativo a partir da raiz do projeto
+- Criada automaticamente se não existir
+- Exemplo: `./storage/uploads/doc-123.pdf`
+
+**Alterar para outro local:**
+```bash
+STORAGE_UPLOAD_DIR=/var/documents  # Linux/Mac
+STORAGE_UPLOAD_DIR=C:\uploads      # Windows
+```
+
+---
+
+### 🖥️ Variáveis do Servidor
+
+```bash
+PORT=3000
+```
+- **Porta onde API escuta**
+- Padrão: 3000
+- Mudar se já está em uso: `PORT=3001`
+- Acessar em: `http://localhost:PORT`
+
+```bash
+NODE_ENV=development
+```
+- **Ambiente de execução**
+- `development` = logs verbosos, sem otimizações
+- `production` = otimizado, menos logs
+
+**Valores permitidos:**
+```bash
+NODE_ENV=development   # Desenvolvimento
+NODE_ENV=production    # Produção
+NODE_ENV=test         # Testes
+```
+
+---
+
+### 🔑 Variáveis de Autenticação
+
+```bash
+API_KEY_PLACEHOLDER=dev-key
+```
+- **Chave de API para proteger endpoints**
+- Todas as requisições precisam do header: `x-api-key: dev-key`
+- Sem a chave: erro 401 Unauthorized
+
+**Exemplo de uso:**
+```bash
+curl -H "x-api-key: dev-key" http://localhost:3000/health
+```
+
+**Mudar para valor diferente:**
+```bash
+API_KEY_PLACEHOLDER=sua-chave-super-secreta
+```
+
+---
+
+### 📋 Exemplo Completo do .env.local
 
 ```bash
 # Server
 PORT=3000
 NODE_ENV=development
 
-# API
+# API Key
 API_KEY_PLACEHOLDER=dev-key
 
-# Database (deixe em branco para mock mode)
-DATABASE_URL=
+# Database - ESSENCIAL PARA PRODUÇÃO
+DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
 
-# Redis (deixe em branco para mock mode)
-REDIS_HOST=
-REDIS_PORT=
+# Redis - ESSENCIAL PARA PRODUÇÃO  
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
 # Processing
 PROVIDER_TIMEOUT_MS=45000
@@ -696,13 +1009,126 @@ WORKER_CONCURRENCY=1
 STORAGE_UPLOAD_DIR=./storage/uploads
 ```
 
-> **Dica:** Se deixar `DATABASE_URL` e `REDIS_HOST` em branco, o sistema entra em **mock mode** (tudo em memória).
+---
+
+### 🎯 Variáveis por Cenário
+
+#### Desenvolvimento Local (Com Docker)
+```bash
+PORT=3000
+NODE_ENV=development
+API_KEY_PLACEHOLDER=dev-key
+DATABASE_URL=postgresql://user:password@localhost:5432/doc-intelligence
+REDIS_HOST=localhost
+REDIS_PORT=6379
+PROVIDER_TIMEOUT_MS=45000
+PROCESSING_MAX_ATTEMPTS=3
+PROCESSING_BACKOFF_MS=1000
+CONFIDENCE_THRESHOLD=0.8
+WORKER_CONCURRENCY=1
+STORAGE_UPLOAD_DIR=./storage/uploads
+```
+
+#### Desenvolvimento Rápido (Modo Mock - SEM Docker)
+```bash
+PORT=3000
+NODE_ENV=development
+API_KEY_PLACEHOLDER=dev-key
+DATABASE_URL=                  # Vazio = modo mock
+REDIS_HOST=                    # Vazio = modo mock
+REDIS_PORT=
+PROVIDER_TIMEOUT_MS=45000
+PROCESSING_MAX_ATTEMPTS=3
+PROCESSING_BACKOFF_MS=1000
+CONFIDENCE_THRESHOLD=0.8
+WORKER_CONCURRENCY=1
+STORAGE_UPLOAD_DIR=./storage/uploads
+```
+
+#### Produção (Com SSL, credenciais reais)
+```bash
+PORT=443
+NODE_ENV=production
+API_KEY_PLACEHOLDER=sua-chave-muito-secreta-aqui
+DATABASE_URL=postgresql://prod_user:prod_pass@db.suaempresa.com:5432/doc-intelligence
+REDIS_HOST=redis.suaempresa.com
+REDIS_PORT=6379
+PROVIDER_TIMEOUT_MS=60000
+PROCESSING_MAX_ATTEMPTS=5
+PROCESSING_BACKOFF_MS=5000
+CONFIDENCE_THRESHOLD=0.95
+WORKER_CONCURRENCY=10
+STORAGE_UPLOAD_DIR=/var/data/documents
+```
+
+---
+
+### ✅ Checklist de Configuração
+
+- [ ] Docker Desktop instalado e rodando
+- [ ] `npm run docker:up` executado com sucesso
+- [ ] `.env.local` criado com variáveis
+- [ ] `DATABASE_URL` preenchido corretamente
+- [ ] `REDIS_HOST` preenchido corretamente
+- [ ] `PORT` não está sendo usado por outro app
+- [ ] `API_KEY_PLACEHOLDER` definida
+- [ ] `npm install` completado
+- [ ] `npm run db:migrate` executado
+- [ ] `npm start` iniciando corretamente
+
+
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Problema: "Cannot find module 'dist/main'"
+### ❌ Problema: Docker não inicia
+
+```
+Error: Cannot connect to Docker daemon
+```
+
+**Solução:**
+1. Abra Docker Desktop
+2. Aguarde até aparecer "Docker Desktop is running"
+3. Tente novamente: `npm run docker:up`
+
+---
+
+### ❌ Problema: "Error: connect ECONNREFUSED 127.0.0.1:5432"
+
+**Significa:** PostgreSQL não está rodando
+
+**Solução:**
+```bash
+# Verifique se Docker está rodando
+docker ps
+
+# Se vazio, reinicie Docker:
+npm run docker:down
+npm run docker:up
+
+# Se ainda não funcionar, limpe tudo:
+docker system prune -a
+npm run docker:up
+```
+
+---
+
+### ❌ Problema: "Error: connect ECONNREFUSED 127.0.0.1:6379"
+
+**Significa:** Redis não está rodando
+
+**Solução:**
+```bash
+# Mesma do PostgreSQL
+npm run docker:down
+npm run docker:up
+```
+
+---
+
+### ❌ Problema: "Cannot find module 'dist/main'"
 
 ```bash
 npm run build
