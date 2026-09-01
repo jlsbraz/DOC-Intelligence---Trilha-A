@@ -6,6 +6,38 @@
 
 ---
 
+## 📚 Documentação do Software
+
+A documentação completa do projeto está organizada na pasta **`Documentos_do_software/`**:
+
+### 📖 Projeto-Especificação Técnica
+
+**Arquivo:** `Documentos_do_software/Projeto-Especificação Técnica.pdf`
+
+Este documento contém a **especificação técnica completa do projeto**, incluindo:
+- 📋 Requisitos funcionais e não-funcionais
+- 🏗️ Diagrama de arquitetura da solução
+- 🔄 Fluxo de processamento de documentos
+- ⚙️ Detalhes de implementação técnica
+- 🧪 Casos de uso e cenários de teste
+- 📊 Modelo de dados e relacionamentos
+
+**Quando usar:** Comece por aqui se você precisa entender o escopo completo do projeto ou quiser contexto antes de mergulhar no código.
+
+### 🤖 O Registro do Uso de IA
+
+**Arquivo:** `Documentos_do_software/O registro do uso de IA.md`
+
+Este documento registra **todos os prompts de IA utilizados durante o desenvolvimento** do projeto, incluindo:
+- 📝 Levantamento bibliográfico e pesquisa técnica
+- 📐 Especificações para diagramas de arquitetura (Sequência, Estados, Componentes)
+- 📖 Prompts para expansão e melhoria de documentação
+- 🔍 Especificações para auditorias técnicas de qualidade
+
+**Quando usar:** Consulte este documento para entender o processo de desenvolvimento, reproduzir pesquisas, ou revisar a estratégia de uso de IA durante o projeto.
+
+---
+
 ## ⚠️ AVISO IMPORTANTE - Docker é Essencial
 
 **Este projeto DEPENDE de Docker para funcionar!**
@@ -20,10 +52,6 @@ SEM DOCKER = CÓDIGO NÃO RODA
 3. ✅ `npm run docker:up` executa sem erros
 
 Se o Docker não estiver funcionando, vire os instruções na seção "🐳 Docker - Configuração Essencial" abaixo.
-
----
-
-## ⚡ Quick Start (10-15 minutos)
 
 Se você quer rodar rápido, siga este fluxo:
 
