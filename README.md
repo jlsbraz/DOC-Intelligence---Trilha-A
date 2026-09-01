@@ -206,9 +206,32 @@ x-api-key: {{apiKey}}
 Accept: application/json
 ```
 
+**Como encontrar o botão "Send Request":**
+
+Abra o arquivo no VS Code, você verá algo assim:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  rest-client/01-health.rest                         │
+├─────────────────────────────────────────────────────┤
+│ @baseUrl = http://localhost:3000                    │
+│ @apiKey = dev-key                                   │
+│                                                     │
+│ ### Health check                                    │
+│ ┌─ Send Request ─┐  ← CLIQUE AQUI                  │
+│ GET {{baseUrl}}/health                              │
+│ x-api-key: {{apiKey}}                               │
+│ Accept: application/json                            │
+└─────────────────────────────────────────────────────┘
+```
+
+O botão **"Send Request"** aparece em cor clara (geralmente azul) logo acima da linha `GET`. Clique nele.
+
 **Para testar:**
 1. Abra `rest-client/01-health.rest` no VS Code
-2. Clique em **"Send Request"** (acima do `GET`)
+2. Localize a linha `### Health check`
+3. Procure o botão **"Send Request"** que aparece ACIMA da linha `GET`
+4. Clique no botão
 
 **Resposta esperada:**
 ```json
@@ -246,10 +269,27 @@ Content-Type: image/png
 ------DocIntelBoundary--
 ```
 
+**Como encontrar o botão "Send Request":**
+
+Localize a seção "### Upload PNG" e você verá:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  rest-client/02-documents-upload.rest               │
+├─────────────────────────────────────────────────────┤
+│ ### Upload PNG (esperado: 202)                      │
+│ ┌─ Send Request ─┐  ← CLIQUE AQUI                  │
+│ POST {{baseUrl}}/documents                          │
+│ x-api-key: {{apiKey}}                               │
+│ Content-Type: multipart/form-data; ...              │
+└─────────────────────────────────────────────────────┘
+```
+
 **Para testar:**
 1. Abra `rest-client/02-documents-upload.rest`
-2. Encontre a seção "### Upload PNG"
-3. Clique em **"Send Request"**
+2. Localize a seção `### Upload PNG`
+3. Procure o botão **"Send Request"** acima de `POST`
+4. Clique nele
 
 **Resposta esperada (HTTP 202 - Aceito para processamento):**
 ```json
