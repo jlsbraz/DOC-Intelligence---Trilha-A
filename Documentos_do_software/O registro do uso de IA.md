@@ -685,3 +685,13 @@ até a entrega. Justifique a priorização em uma frase por item.
 - Não corrija nada automaticamente nesta tarefa — esta é uma auditoria
   de leitura, não uma tarefa de correção. Correções vêm depois, sob
   prompt separado, uma vez que você e eu decidirmos as prioridades.
+
+---
+
+## Reporte de Problemas Usando IA
+
+Em duas ocasiões, pedi ao agente uma auditoria provando que uma correção tinha funcionado, e o relatório disse que sim — mas, olhando com calma, percebi que partes dele se contradiziam, ou repetiam uma execução antiga de teste em vez de rodar de novo.
+
+**Lição aprendida:** Quando usar IA para validar correções ou gerar auditorias, sempre **re-executar os comandos você mesmo** e comparar com o que a IA reportou. Não confiar apenas na saída descrita pelo agente — verificar se há contradições internas, se os timestamps correspondem à execução atual, e se os dados fazem sentido com o contexto.
+
+**Recomendação:** Para tarefas críticas de verificação (auditorias, validação de correções, testes), usar IA como assistente na interpretação mas manter sempre o comando real rodando localmente ou em CI/CD para confirmação independente.
