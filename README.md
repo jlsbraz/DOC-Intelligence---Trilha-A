@@ -152,14 +152,11 @@ LOG [NestApplication] Listening on port 3000 🚀
 
 **Deixe este terminal aberto** (você vai usar a API em outro terminal/janela).
 
-### Modos de Execução
+### Iniciar o Servidor
 
-| Comando | Uso | Quando usar |
-|---------|-----|------------|
-| `npm start` | Produção (compila antes) | Deploy, testes finais |
-| `npm run start:dev` | Desenvolvimento (watch mode) | Desenvolvimento ativo |
-| `npm run build` | Só compila | Verificar erros TypeScript |
-| `npm test` | Rodar testes | CI/CD, validação |
+```bash
+npm start
+```
 
 ---
 
