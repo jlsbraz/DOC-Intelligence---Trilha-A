@@ -12,6 +12,7 @@ npm-shrinkwrap.json
 # Environment & Configuration
 # ============================================================================
 .env
+.env.example
 .env.local
 .env.*.local
 .env.production
